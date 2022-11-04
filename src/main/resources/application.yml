@@ -1,0 +1,4 @@
+server:
+  servlet:
+    context-path: /api-broker
+  port: 5001
