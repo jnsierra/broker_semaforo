@@ -4,8 +4,9 @@
  */
 package co.com.ud.broker_semaforo.dto;
 
-import java.util.List;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  *

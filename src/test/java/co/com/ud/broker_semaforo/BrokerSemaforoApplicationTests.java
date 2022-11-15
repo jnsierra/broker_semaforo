@@ -1,4 +1,4 @@
-package co.com.ud.broker_semaforo;
+/**package co.com.ud.broker_semaforo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,3 +11,4 @@ class BrokerSemaforoApplicationTests {
     }
 
 }
+**/
