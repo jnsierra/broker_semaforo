@@ -7,6 +7,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 public class MensajeCentralImpl extends Thread {
@@ -41,6 +43,16 @@ public class MensajeCentralImpl extends Thread {
     }
 
     public Boolean enviaMensaje(Integer id,String mensaje) {
-        return null;
+        if(Objects.nonNull(this.conexiones) && !this.conexiones.isEmpty()){
+            Optional<ConexionClienteCentral> conexion =this.conexiones.stream()
+                    .parallel()
+                    .filter( item -> id.equals(item.getIdCliente()) )
+                    .findFirst();
+            if(conexion.isPresent()){
+                conexion.get().enviarMSN(mensaje);
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
     }
 }

@@ -1,7 +1,9 @@
 package co.com.ud.broker_semaforo.controler;
 
+import co.com.ud.broker_semaforo.enumeration.EstadoGrupoSemaforicoEnum;
 import co.com.ud.broker_semaforo.dto.PlanSemaforicoDto;
 import co.com.ud.broker_semaforo.service.CargarJsonService;
+import co.com.ud.broker_semaforo.service.ConsultaGrupoSemaforicoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +19,12 @@ import java.util.Optional;
 public class ConsultasController {
 
     private final CargarJsonService cargarJsonService;
+    private ConsultaGrupoSemaforicoService consultaGrupoSemaforicoService;
 
     @Autowired
-    public ConsultasController(CargarJsonService cargarJsonService) {
+    public ConsultasController(CargarJsonService cargarJsonService, ConsultaGrupoSemaforicoService consultaGrupoSemaforicoService) {
         this.cargarJsonService = cargarJsonService;
+        this.consultaGrupoSemaforicoService = consultaGrupoSemaforicoService;
     }
 
     @GetMapping("/infgnral/{interseccion}/")
@@ -30,6 +34,13 @@ public class ConsultasController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>( cargarJsonService.getPlanSemaforicoDto(), HttpStatus.OK);
+    }
+    @GetMapping("/estado/{interseccion}/")
+    public ResponseEntity<EstadoGrupoSemaforicoEnum> getEstadoGrupoSemaforico(@PathVariable("interseccion") Integer inteseccion){
+        Optional<EstadoGrupoSemaforicoEnum> response = consultaGrupoSemaforicoService.getEstadoEnum(inteseccion);
+        if(response.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(response.get(), HttpStatus.OK);
     }
 
 }

@@ -22,4 +22,5 @@ public class ObjectConfig {
     public MensajeCentralImpl getMensajeCentral(@Value("${broker.connection.port}")Integer port){
         return new MensajeCentralImpl(port);
     }
+
 }
