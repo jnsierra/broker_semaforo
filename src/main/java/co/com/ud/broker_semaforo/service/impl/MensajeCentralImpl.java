@@ -16,10 +16,11 @@ public class MensajeCentralImpl extends Thread {
     private List<ConexionClienteCentral> conexiones;
     private ServerSocket servidor = null;
     private Socket socket = null;
+    private ManageResponseServiceImpl manageResponseService;
 
-
-    public MensajeCentralImpl(Integer port) {
+    public MensajeCentralImpl(Integer port, ManageResponseServiceImpl manageResponseService) {
         this.port = port;
+        this.manageResponseService = manageResponseService;
         conexiones = new ArrayList<>();
     }
 
@@ -31,7 +32,7 @@ public class MensajeCentralImpl extends Thread {
                 log.info("Servidor a la espera de conexiones.");
                 socket = servidor.accept();
                 log.info("Cliente con la IP " + socket.getInetAddress().getHostName() + " conectado.");
-                ConexionClienteCentral ccs = new ConexionClienteCentral(socket);
+                ConexionClienteCentral ccs = new ConexionClienteCentral(socket, this.manageResponseService);
                 ccs.setIdCliente(i);
                 ccs.start();
                 this.conexiones.add(ccs);

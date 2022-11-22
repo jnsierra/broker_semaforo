@@ -1,7 +1,6 @@
 package co.com.ud.broker_semaforo.config;
 
-//import co.com.ud.broker_semaforo.threads.RelojThread;
-
+import co.com.ud.broker_semaforo.service.impl.ManageResponseServiceImpl;
 import co.com.ud.broker_semaforo.service.impl.MensajeCentralImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +18,8 @@ public class ObjectConfig {
 
     @Bean
     @Scope("singleton")
-    public MensajeCentralImpl getMensajeCentral(@Value("${broker.connection.port}")Integer port){
-        return new MensajeCentralImpl(port);
+    public MensajeCentralImpl getMensajeCentral(@Value("${broker.connection.port}")Integer port, ManageResponseServiceImpl manageResponseService){
+        return new MensajeCentralImpl(port, manageResponseService);
     }
 
 }

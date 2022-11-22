@@ -19,9 +19,11 @@ public class ConexionClienteCentral extends Thread{
 
     private Boolean escuchando;
     private Boolean msnBienvenidaEnviado;
+    private ManageResponseServiceImpl manageResponseService;
 
-    public ConexionClienteCentral(Socket socket) {
+    public ConexionClienteCentral(Socket socket, ManageResponseServiceImpl manageResponseService) {
         this.msnBienvenidaEnviado = Boolean.FALSE;
+        this.manageResponseService = manageResponseService;
         this.socket = socket;
         this.escuchando = Boolean.TRUE;
         try {
@@ -40,6 +42,7 @@ public class ConexionClienteCentral extends Thread{
             try {
                 // Lee un mensaje enviado por el Servidor
                 mensajeRecibido = entradaDatos.readUTF();
+                log.info("Mensaje enviado con el id {} msn: {}", this.idCliente, mensajeRecibido);
             } catch (IOException ex) {
                 log.info("Cliente con la IP " + socket.getInetAddress().getHostName() + " desconectado.");
                 this.escuchando = Boolean.FALSE;

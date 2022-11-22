@@ -36,7 +36,7 @@ public class ConsultaGrupoSemaforicoServiceImpl implements ConsultaGrupoSemafori
 
     private String generateMsnConsultaEstado(Integer interseccion) throws JsonProcessingException {
         idTransaccion++;
-        return objectMapper.writeValueAsString(MensajeBroker.builder()
+        return "MSNCONSULTAESTADO|"+objectMapper.writeValueAsString(MensajeBroker.builder()
                         .idTransaccion(idTransaccion)
                         .idInterseccion(interseccion)
                         .mensaje("CONSULTAESTADO")
