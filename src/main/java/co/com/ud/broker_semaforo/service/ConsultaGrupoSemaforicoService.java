@@ -8,4 +8,10 @@ public interface ConsultaGrupoSemaforicoService {
 
     Optional<EstadoGrupoSemaforicoEnum> getEstadoEnum(Integer interseccion);
 
+    Optional<Integer> getNumConexiones(Integer interseccion);
+
+    Optional<Integer> getTiempoEjecucion(Integer interseccion);
+
+    Integer getIdTransaccion();
+    void setIdTransaccion(Integer idTransaccion);
 }

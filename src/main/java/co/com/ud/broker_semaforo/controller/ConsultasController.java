@@ -1,4 +1,4 @@
-package co.com.ud.broker_semaforo.controler;
+package co.com.ud.broker_semaforo.controller;
 
 import co.com.ud.broker_semaforo.enumeration.EstadoGrupoSemaforicoEnum;
 import co.com.ud.broker_semaforo.dto.PlanSemaforicoDto;
@@ -41,6 +41,23 @@ public class ConsultasController {
         if(response.isEmpty())
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(response.get(), HttpStatus.OK);
+    }
+    @GetMapping("/conexiones/{interseccion}/")
+    public ResponseEntity<Integer> getNumConexiones(@PathVariable("interseccion") Integer inteseccion){
+        Optional<Integer> response = consultaGrupoSemaforicoService.getNumConexiones(inteseccion);
+        if(response.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(response.get(), HttpStatus.OK);
+
+    }
+
+    @GetMapping("/tiempo/{interseccion}/")
+    public ResponseEntity<Integer> getTiempoEjecucion(@PathVariable("interseccion") Integer inteseccion){
+        Optional<Integer> response = consultaGrupoSemaforicoService.getTiempoEjecucion(inteseccion);
+        if(response.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(response.get(), HttpStatus.OK);
+
     }
 
 }

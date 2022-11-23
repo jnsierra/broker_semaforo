@@ -6,6 +6,8 @@ import co.com.ud.broker_semaforo.service.ConsultaGrupoSemaforicoService;
 import co.com.ud.broker_semaforo.service.ManageResponseService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -19,6 +21,7 @@ import java.util.Optional;
 public class ConsultaGrupoSemaforicoServiceImpl implements ConsultaGrupoSemaforicoService {
 
     private MensajeCentralImpl mensajeCentral;
+    @Getter @Setter
     private Integer idTransaccion;
     private ObjectMapper objectMapper;
 
@@ -56,12 +59,72 @@ public class ConsultaGrupoSemaforicoServiceImpl implements ConsultaGrupoSemafori
         return Optional.empty();
     }
 
+    @Override
+    public Optional<Integer> getNumConexiones(Integer interseccion) {
+        try {
+            Boolean validar = mensajeCentral.enviaMensaje(interseccion, generateMsnConsultaNumConexiones(interseccion));
+            if(validar){
+                for(int i = 0 ; i < 5 ; i++){
+                    dormirHilo();
+                    Optional<String> mensajeGrp = manageResponseService.findMessage(idTransaccion);
+                    if(mensajeGrp.isPresent()){
+                        log.info("Este es el mensaje que debo responder: {} ", mensajeGrp.get());
+                        return Optional.of(Integer.valueOf(mensajeGrp.get()));
+                    }
+                }
+            }
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Integer> getTiempoEjecucion(Integer interseccion) {
+        try {
+            Boolean validar = mensajeCentral.enviaMensaje(interseccion, generateMsnConsultaTiempoEjecucion(interseccion));
+            if(validar){
+                for(int i = 0 ; i < 5 ; i++){
+                    dormirHilo();
+                    Optional<String> mensajeGrp = manageResponseService.findMessage(idTransaccion);
+                    if(mensajeGrp.isPresent()){
+                        log.info("Este es el mensaje que debo responder: {} ", mensajeGrp.get());
+                        return Optional.of(Integer.valueOf(mensajeGrp.get()));
+                    }
+                }
+            }
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return Optional.empty();
+    }
+
     private String generateMsnConsultaEstado(Integer interseccion) throws JsonProcessingException {
         idTransaccion++;
         return "MSNCONSULTAESTADO|"+objectMapper.writeValueAsString(MensajeBroker.builder()
                         .idTransaccion(idTransaccion)
                         .idInterseccion(interseccion)
                         .mensaje("CONSULTAESTADO")
+                .build());
+    }
+
+    private String generateMsnConsultaNumConexiones(Integer interseccion) throws JsonProcessingException {
+        idTransaccion++;
+        return "MSNCONSULTANUMCON|"+objectMapper.writeValueAsString(MensajeBroker.builder()
+                .idTransaccion(idTransaccion)
+                .idInterseccion(interseccion)
+                .mensaje("CONSULTANUMCON")
+                .build());
+    }
+
+    private String generateMsnConsultaTiempoEjecucion(Integer interseccion) throws JsonProcessingException {
+        idTransaccion++;
+        return "MSNCONSULTATIEMEJECUCION|"+objectMapper.writeValueAsString(MensajeBroker.builder()
+                .idTransaccion(idTransaccion)
+                .idInterseccion(interseccion)
+                .mensaje("MSNCONSULTATIEMEJECUCION")
                 .build());
     }
 
