@@ -43,6 +43,7 @@ public class ConexionClienteCentral extends Thread{
                 // Lee un mensaje enviado por el Servidor
                 mensajeRecibido = entradaDatos.readUTF();
                 log.info("Mensaje enviado con el id {} msn: {}", this.idCliente, mensajeRecibido);
+                manageResponseService.addMensaje(mensajeRecibido);
             } catch (IOException ex) {
                 log.info("Cliente con la IP " + socket.getInetAddress().getHostName() + " desconectado.");
                 this.escuchando = Boolean.FALSE;

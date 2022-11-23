@@ -4,6 +4,8 @@ import java.util.Optional;
 
 public interface ManageResponseService {
 
-    Optional<String> getRtaConsulta(String msn, Integer id);
+    Optional<String> findMessage(Integer idMsg);
+
+    void addMensaje(String msn);
 
 }
