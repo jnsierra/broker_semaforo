@@ -8,10 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Scope("singleton")
@@ -22,7 +19,7 @@ public class ManageResponseServiceImpl implements ManageResponseService{
     private ObjectMapper objectMapper;
 
     public ManageResponseServiceImpl(ObjectMapper objectMapper) {
-        this.mensajes = new ArrayList<>();
+        this.mensajes = new LinkedList<>();
         this.objectMapper = objectMapper;
     }
 
@@ -42,15 +39,29 @@ public class ManageResponseServiceImpl implements ManageResponseService{
         return parts[1];
     }
 
-    public Optional<String> findMessage(Integer idMsg){
+    public synchronized Optional<String> findMessage(Integer idMsg){
         if( Objects.nonNull(mensajes) && !mensajes.isEmpty() && Objects.nonNull(idMsg) ){
             Optional<MensajeBroker> response = this.mensajes.stream().parallel()
                     .filter(item -> idMsg == item.getIdTransaccion())
                     .findFirst();
+            log.info("Numero de items antes de remover {} ", this.mensajes.size());
             if(response.isPresent()){
+                this.removeItem(idMsg);
+                this.mensajes.removeIf(item -> idMsg == item.getIdTransaccion());
+                log.info("Numero de items {} ", this.mensajes.size());
                 return Optional.of(response.get().getMensaje());
             }
         }
         return Optional.empty();
+    }
+
+    public void removeItem(Integer idMsn){
+        for(int i = 0; i < mensajes.size() ; i++){
+            MensajeBroker item = this.mensajes.get(i);
+            if(idMsn == item.getIdTransaccion()){
+                this.mensajes.remove(i);
+                return ;
+            }
+        }
     }
 }
