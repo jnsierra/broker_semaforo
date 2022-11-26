@@ -36,15 +36,15 @@ public class ConsultasController {
         return new ResponseEntity<>( cargarJsonService.getPlanSemaforicoDto(), HttpStatus.OK);
     }
     @GetMapping("/estado/{interseccion}/")
-    public ResponseEntity<EstadoGrupoSemaforicoEnum> getEstadoGrupoSemaforico(@PathVariable("interseccion") Integer inteseccion){
-        Optional<EstadoGrupoSemaforicoEnum> response = consultaGrupoSemaforicoService.getEstadoEnum(inteseccion);
+    public ResponseEntity<EstadoGrupoSemaforicoEnum> getEstadoGrupoSemaforico(@PathVariable("interseccion") Integer interseccion){
+        Optional<EstadoGrupoSemaforicoEnum> response = consultaGrupoSemaforicoService.ejecutaAccion(interseccion,"MSNCONSULTAESTADO");
         if(response.isEmpty())
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(response.get(), HttpStatus.OK);
     }
     @GetMapping("/conexiones/{interseccion}/")
-    public ResponseEntity<Integer> getNumConexiones(@PathVariable("interseccion") Integer inteseccion){
-        Optional<Integer> response = consultaGrupoSemaforicoService.getNumConexiones(inteseccion);
+    public ResponseEntity<Integer> getNumConexiones(@PathVariable("interseccion") Integer interseccion){
+        Optional<Integer> response = consultaGrupoSemaforicoService.ejecutaAccion(interseccion,"MSNCONSULTANUMCON");
         if(response.isEmpty())
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(response.get(), HttpStatus.OK);
@@ -52,8 +52,8 @@ public class ConsultasController {
     }
 
     @GetMapping("/tiempo/{interseccion}/")
-    public ResponseEntity<Integer> getTiempoEjecucion(@PathVariable("interseccion") Integer inteseccion){
-        Optional<Integer> response = consultaGrupoSemaforicoService.getTiempoEjecucion(inteseccion);
+    public ResponseEntity<Integer> getTiempoEjecucion(@PathVariable("interseccion") Integer interseccion){
+        Optional<Integer> response = consultaGrupoSemaforicoService.ejecutaAccion(interseccion,"MSNCONSULTATIEMEJECUCION");
         if(response.isEmpty())
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(response.get(), HttpStatus.OK);

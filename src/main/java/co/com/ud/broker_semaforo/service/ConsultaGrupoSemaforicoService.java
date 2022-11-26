@@ -4,14 +4,8 @@ import co.com.ud.broker_semaforo.enumeration.EstadoGrupoSemaforicoEnum;
 
 import java.util.Optional;
 
-public interface ConsultaGrupoSemaforicoService {
+public interface ConsultaGrupoSemaforicoService<T> {
 
-    Optional<EstadoGrupoSemaforicoEnum> getEstadoEnum(Integer interseccion);
+    Optional<T> ejecutaAccion(Integer interseccion, String accion);
 
-    Optional<Integer> getNumConexiones(Integer interseccion);
-
-    Optional<Integer> getTiempoEjecucion(Integer interseccion);
-
-    Integer getIdTransaccion();
-    void setIdTransaccion(Integer idTransaccion);
 }

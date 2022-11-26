@@ -4,6 +4,7 @@ import co.com.ud.broker_semaforo.dto.MensajeBroker;
 import co.com.ud.broker_semaforo.enumeration.EstadoGrupoSemaforicoEnum;
 import co.com.ud.broker_semaforo.service.ConsultaGrupoSemaforicoService;
 import co.com.ud.broker_semaforo.service.ManageResponseService;
+import co.com.ud.broker_semaforo.service.ManageTransaccionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -21,118 +22,50 @@ import java.util.Optional;
 public class ConsultaGrupoSemaforicoServiceImpl implements ConsultaGrupoSemaforicoService {
 
     private MensajeCentralImpl mensajeCentral;
-    @Getter @Setter
-    private Integer idTransaccion;
-    private ObjectMapper objectMapper;
-
+    private ManageTransaccionService manageTransaccionService;
     private ManageResponseService manageResponseService;
 
     @Autowired
     public ConsultaGrupoSemaforicoServiceImpl(MensajeCentralImpl mensajeCentral
-            , ObjectMapper objectMapper
-            , ManageResponseService manageResponseService) {
+            , ManageResponseService manageResponseService
+            , ManageTransaccionService manageTransaccionService) {
         this.mensajeCentral = mensajeCentral;
-        this.idTransaccion = 0;
-        this.objectMapper = objectMapper;
         this.manageResponseService = manageResponseService;
+        this.manageTransaccionService = manageTransaccionService;
     }
+
 
     @Override
-    @Async
-    public Optional<EstadoGrupoSemaforicoEnum> getEstadoEnum(Integer interseccion) {
-        try {
-            Boolean validar = mensajeCentral.enviaMensaje(interseccion, generateMsnConsultaEstado(interseccion));
-            if(validar){
-                for(int i = 0 ; i < 5 ; i++){
-                    dormirHilo();
-                    Optional<String> mensajeGrp = manageResponseService.findMessage(idTransaccion);
-                    if(mensajeGrp.isPresent()){
-                        log.info("Este es el mensaje que debo responder: {} ", mensajeGrp.get());
-                        return Optional.of(EstadoGrupoSemaforicoEnum.of(mensajeGrp.get()));
-                    }
+    public synchronized Optional ejecutaAccion(Integer interseccion, String accion) {
+        log.info("*****************************");
+        int idTranTemporal = manageTransaccionService.solicitarIdTransaccion();
+        log.info("Se inicia transacción con el id {} ", idTranTemporal);
+        Boolean validar = mensajeCentral.enviaMensaje(interseccion,manageTransaccionService.generateMsn(interseccion, accion, idTranTemporal));
+        if(validar){
+            log.info("Se envia el mensaje: {}", validar);
+            Optional responseMethod = Optional.empty();
+            Optional<String> response = manageTransaccionService.buscaMensajeByIdTrans(idTranTemporal);
+            if(response.isPresent()){
+                switch (accion){
+                    case "MSNCONSULTAESTADO":
+                        responseMethod = Optional.of(EstadoGrupoSemaforicoEnum.of(response.get()));
+                        break;
+                    case "MSNCONSULTANUMCON":
+                    case "MSNCONSULTATIEMEJECUCION":
+                        responseMethod =Optional.of(Integer.valueOf(response.get()));
+                        break;
+                    case "MSNEJECUTARGRPSEMAFORICO":
+                        responseMethod = Optional.of( "true".equalsIgnoreCase(response.get()) ?  Boolean.TRUE : Boolean.FALSE );
+                    default:
+                        log.info("Mensaje no identificado {} con el id de transaccion: {} ", accion, interseccion);
+                        break;
                 }
+                log.info("Se consiguio la respuesta {} ", response.get());
+            }else{
+                log.info("No se encontro respuesta de vuelta");
             }
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            return  responseMethod;
         }
         return Optional.empty();
-    }
-
-    @Override
-    public Optional<Integer> getNumConexiones(Integer interseccion) {
-        try {
-            Boolean validar = mensajeCentral.enviaMensaje(interseccion, generateMsnConsultaNumConexiones(interseccion));
-            if(validar){
-                for(int i = 0 ; i < 5 ; i++){
-                    dormirHilo();
-                    Optional<String> mensajeGrp = manageResponseService.findMessage(idTransaccion);
-                    if(mensajeGrp.isPresent()){
-                        log.info("Este es el mensaje que debo responder: {} ", mensajeGrp.get());
-                        return Optional.of(Integer.valueOf(mensajeGrp.get()));
-                    }
-                }
-            }
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Integer> getTiempoEjecucion(Integer interseccion) {
-        try {
-            Boolean validar = mensajeCentral.enviaMensaje(interseccion, generateMsnConsultaTiempoEjecucion(interseccion));
-            if(validar){
-                for(int i = 0 ; i < 5 ; i++){
-                    dormirHilo();
-                    Optional<String> mensajeGrp = manageResponseService.findMessage(idTransaccion);
-                    if(mensajeGrp.isPresent()){
-                        log.info("Este es el mensaje que debo responder: {} ", mensajeGrp.get());
-                        return Optional.of(Integer.valueOf(mensajeGrp.get()));
-                    }
-                }
-            }
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        return Optional.empty();
-    }
-
-    private String generateMsnConsultaEstado(Integer interseccion) throws JsonProcessingException {
-        idTransaccion++;
-        return "MSNCONSULTAESTADO|"+objectMapper.writeValueAsString(MensajeBroker.builder()
-                        .idTransaccion(idTransaccion)
-                        .idInterseccion(interseccion)
-                        .mensaje("CONSULTAESTADO")
-                .build());
-    }
-
-    private String generateMsnConsultaNumConexiones(Integer interseccion) throws JsonProcessingException {
-        idTransaccion++;
-        return "MSNCONSULTANUMCON|"+objectMapper.writeValueAsString(MensajeBroker.builder()
-                .idTransaccion(idTransaccion)
-                .idInterseccion(interseccion)
-                .mensaje("CONSULTANUMCON")
-                .build());
-    }
-
-    private String generateMsnConsultaTiempoEjecucion(Integer interseccion) throws JsonProcessingException {
-        idTransaccion++;
-        return "MSNCONSULTATIEMEJECUCION|"+objectMapper.writeValueAsString(MensajeBroker.builder()
-                .idTransaccion(idTransaccion)
-                .idInterseccion(interseccion)
-                .mensaje("MSNCONSULTATIEMEJECUCION")
-                .build());
-    }
-
-    private void dormirHilo(){
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

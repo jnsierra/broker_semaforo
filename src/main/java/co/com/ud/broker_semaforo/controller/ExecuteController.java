@@ -1,7 +1,6 @@
 package co.com.ud.broker_semaforo.controller;
 
-import co.com.ud.broker_semaforo.dto.PlanSemaforicoDto;
-import co.com.ud.broker_semaforo.service.impl.ExecuteServiceImpl;
+import co.com.ud.broker_semaforo.service.ConsultaGrupoSemaforicoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,16 +15,16 @@ import java.util.Optional;
 @RequestMapping("/v.1/ejecutarSemaforo")
 public class ExecuteController {
 
-    private ExecuteServiceImpl executeService;
+    private ConsultaGrupoSemaforicoService consultaGrupoSemaforicoService;
 
     @Autowired
-    public ExecuteController(ExecuteServiceImpl executeService) {
-        this.executeService = executeService;
+    public ExecuteController(ConsultaGrupoSemaforicoService consultaGrupoSemaforicoService) {
+        this.consultaGrupoSemaforicoService = consultaGrupoSemaforicoService;
     }
 
     @GetMapping("/ejecutar/{interseccion}/")
     public ResponseEntity<Boolean> getEjecutarInterseccion(@PathVariable("interseccion") Integer interseccion){
-        Optional<Boolean> valida = executeService.executeService(interseccion);
+        Optional<Boolean> valida = consultaGrupoSemaforicoService.ejecutaAccion(interseccion,"MSNEJECUTARGRPSEMAFORICO");
         if(valida.isEmpty()){
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
