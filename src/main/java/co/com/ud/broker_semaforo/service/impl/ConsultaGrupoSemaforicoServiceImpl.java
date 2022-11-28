@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -65,6 +66,14 @@ public class ConsultaGrupoSemaforicoServiceImpl implements ConsultaGrupoSemafori
                 log.info("No se encontro respuesta de vuelta");
             }
             return  responseMethod;
+        }
+        return Optional.empty();
+    }
+
+    public synchronized Optional ejecutaAccionReturnInm(Integer interseccion, String accion){
+        String validar = mensajeCentral.enviaMensajeRetornoIn(interseccion);
+        if(Objects.nonNull(validar)){
+            return Optional.of(validar);
         }
         return Optional.empty();
     }

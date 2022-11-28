@@ -56,4 +56,17 @@ public class MensajeCentralImpl extends Thread {
         }
         return Boolean.FALSE;
     }
+
+    public String enviaMensajeRetornoIn(Integer id) {
+        if(Objects.nonNull(this.conexiones) && !this.conexiones.isEmpty()){
+            Optional<ConexionClienteCentral> conexion =this.conexiones.stream()
+                    .parallel()
+                    .filter( item -> id.equals(item.getIdCliente()) )
+                    .findFirst();
+            if(conexion.isPresent()){
+                return conexion.get().enviarMSNInm();
+            }
+        }
+        return null;
+    }
 }

@@ -52,8 +52,8 @@ public class ConsultasController {
     }
 
     @GetMapping("/tiempo/{interseccion}/")
-    public ResponseEntity<Integer> getTiempoEjecucion(@PathVariable("interseccion") Integer interseccion){
-        Optional<Integer> response = consultaGrupoSemaforicoService.ejecutaAccion(interseccion,"MSNCONSULTATIEMEJECUCION");
+    public ResponseEntity<String> getTiempoEjecucion(@PathVariable("interseccion") Integer interseccion){
+        Optional<String> response = consultaGrupoSemaforicoService.ejecutaAccionReturnInm(interseccion,"MSNCONSULTATIEMEJECUCION");
         if(response.isEmpty())
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(response.get(), HttpStatus.OK);

@@ -8,4 +8,6 @@ public interface ConsultaGrupoSemaforicoService<T> {
 
     Optional<T> ejecutaAccion(Integer interseccion, String accion);
 
+    Optional ejecutaAccionReturnInm(Integer interseccion, String accion);
+
 }
