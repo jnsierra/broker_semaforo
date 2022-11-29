@@ -71,7 +71,13 @@ public class ConsultaGrupoSemaforicoServiceImpl implements ConsultaGrupoSemafori
     }
 
     public synchronized Optional ejecutaAccionReturnInm(Integer interseccion, String accion){
-        String validar = mensajeCentral.enviaMensajeRetornoIn(interseccion);
+        String validar = "";
+        switch (accion){
+            case "MSNCONSULTATIEMEJECUCION":
+            case "MSNCONSULTAESTADO":
+                validar = mensajeCentral.enviaMensajeRetornoIn(interseccion, accion);
+                break;
+        }
         if(Objects.nonNull(validar)){
             return Optional.of(validar);
         }

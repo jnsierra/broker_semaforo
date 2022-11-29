@@ -37,10 +37,11 @@ public class ConsultasController {
     }
     @GetMapping("/estado/{interseccion}/")
     public ResponseEntity<EstadoGrupoSemaforicoEnum> getEstadoGrupoSemaforico(@PathVariable("interseccion") Integer interseccion){
-        Optional<EstadoGrupoSemaforicoEnum> response = consultaGrupoSemaforicoService.ejecutaAccion(interseccion,"MSNCONSULTAESTADO");
+        //Optional<EstadoGrupoSemaforicoEnum> response = consultaGrupoSemaforicoService.ejecutaAccion(interseccion,"MSNCONSULTAESTADO");
+        Optional<String> response = consultaGrupoSemaforicoService.ejecutaAccionReturnInm(interseccion,"MSNCONSULTAESTADO");
         if(response.isEmpty())
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        return new ResponseEntity<>(response.get(), HttpStatus.OK);
+        return new ResponseEntity<>(EstadoGrupoSemaforicoEnum.of(response.get()), HttpStatus.OK);
     }
     @GetMapping("/conexiones/{interseccion}/")
     public ResponseEntity<Integer> getNumConexiones(@PathVariable("interseccion") Integer interseccion){

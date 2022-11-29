@@ -29,7 +29,11 @@ public class ConexionClienteCentral extends Thread{
     private Boolean msnBienvenidaEnviado;
     private ManageResponseServiceImpl manageResponseService;
 
-    private final String ROOT_URI = "http://localhost:5001/api-business";
+    private String ROOT_URI;
+    @Setter @Getter
+    private String ip;
+    @Setter @Getter
+    private String puerto;
 
     public ConexionClienteCentral(Socket socket, ManageResponseServiceImpl manageResponseService) {
         this.msnBienvenidaEnviado = Boolean.FALSE;
@@ -68,6 +72,10 @@ public class ConexionClienteCentral extends Thread{
         }
     }
 
+    public void generateUrl(){
+        ROOT_URI = "http://"+this.ip+":"+this.puerto+"/api-business";
+    }
+
     public void envioMsnBienvenida(){
         if(!msnBienvenidaEnviado){
             this.msnBienvenidaEnviado = Boolean.TRUE;
@@ -97,18 +105,27 @@ public class ConexionClienteCentral extends Thread{
 
     }
 
-    public String enviarMSNInm(){
+    public String enviarMSNInm(String tipoConsulta){
+        String rtaString = "";
         RestTemplate restTemplate = new RestTemplate();
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
         converter.setObjectMapper(new ObjectMapper());
         restTemplate.getMessageConverters().add(converter);
-        ResponseEntity<RespuestaMensaje> response = restTemplate.getForEntity(ROOT_URI + "/v.1/consultaSemaforo/tiempo/", RespuestaMensaje.class);
-        log.info("Esta es la respuesta {} ", response);
-        RespuestaMensaje<Integer> rta = response.getBody();
-        if(HttpStatus.OK.equals(response.getStatusCode())){
-            return rta.getRespuesta() + "";
+        ResponseEntity<RespuestaMensaje> response = null;
+        if("MSNCONSULTATIEMEJECUCION".equalsIgnoreCase(tipoConsulta)){
+            response = restTemplate.getForEntity(ROOT_URI + "/v.1/consultaSemaforo/tiempo/", RespuestaMensaje.class);
+            RespuestaMensaje<Integer> rta = response.getBody();
+            if(HttpStatus.OK.equals(response.getStatusCode())){
+                rtaString = rta.getRespuesta() + "";
+            }
         }
-        return null;
+        if("MSNCONSULTAESTADO".equalsIgnoreCase(tipoConsulta)){
+            response = restTemplate.getForEntity(ROOT_URI + "/v.1/consultaSemaforo/estado/", RespuestaMensaje.class);
+            RespuestaMensaje<String> rta = response.getBody();
+            rtaString = rta.getRespuesta();
+        }
+        log.info("Esta es la respuesta {} ", response);
+        return rtaString;
     }
 
     public void envioMsnRest(String msn){

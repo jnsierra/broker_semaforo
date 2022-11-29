@@ -1,5 +1,7 @@
 package co.com.ud.broker_semaforo.service.impl;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -34,6 +36,19 @@ public class MensajeCentralImpl extends Thread {
                 log.info("Cliente con la IP " + socket.getInetAddress().getHostName() + " conectado.");
                 ConexionClienteCentral ccs = new ConexionClienteCentral(socket, this.manageResponseService);
                 ccs.setIdCliente(i);
+                if(i == 1){
+                    ccs.setIp("localhost");
+                    ccs.setPuerto("5001");
+                }
+                if(i == 2){
+                    ccs.setIp("localhost");
+                    ccs.setPuerto("5002");
+                }
+                if(i == 3){
+                    ccs.setIp("localhost");
+                    ccs.setPuerto("5003");
+                }
+                ccs.generateUrl();
                 ccs.start();
                 this.conexiones.add(ccs);
             }
@@ -57,14 +72,14 @@ public class MensajeCentralImpl extends Thread {
         return Boolean.FALSE;
     }
 
-    public String enviaMensajeRetornoIn(Integer id) {
+    public String enviaMensajeRetornoIn(Integer id, String consulta) {
         if(Objects.nonNull(this.conexiones) && !this.conexiones.isEmpty()){
             Optional<ConexionClienteCentral> conexion =this.conexiones.stream()
                     .parallel()
                     .filter( item -> id.equals(item.getIdCliente()) )
                     .findFirst();
             if(conexion.isPresent()){
-                return conexion.get().enviarMSNInm();
+                return conexion.get().enviarMSNInm(consulta);
             }
         }
         return null;
